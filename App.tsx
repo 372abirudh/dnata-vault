@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AppState, View } from 'react-native';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -11,6 +11,7 @@ import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { useStore } from './src/store';
 import { C } from './src/theme/tokens';
 import { Dialog } from './src/components/ds';
+import { BrandSplash } from './src/components/splash';
 import { DateHost, PickerHost, ScanHost, ToastHost } from './src/components/hosts';
 import { CreateMenu, HomeScreen, NotificationsSheet, ProfileSheet } from './src/screens/home';
 import { DocSheet, GrnDetail } from './src/screens/receipts/detail';
@@ -76,11 +77,14 @@ export default function App() {
   const [hydrated, setHydrated] = useState(useStore.persist.hasHydrated());
   useEffect(() => useStore.persist.onFinishHydration(() => setHydrated(true)), []);
   const ready = loaded && hydrated;
+  const [intro, setIntro] = useState(true);
+  const endIntro = useCallback(() => setIntro(false), []);
   useEffect(() => { if (ready) SplashScreen.hideAsync().catch(() => {}); }, [ready]);
   if (!ready) return <View style={{ flex: 1, backgroundColor: C.navy }} />;
   return (
     <SafeAreaProvider>
       <Root />
+      {intro ? <BrandSplash onDone={endIntro} /> : null}
     </SafeAreaProvider>
   );
 }

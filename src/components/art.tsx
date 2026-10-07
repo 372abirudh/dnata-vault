@@ -11,9 +11,12 @@ const LOGO_PATHS = `<g transform="translate(-127.09863,-178.43577)">
 </g>`;
 const LOGO_RATIO = 36.353042 / 10.078157;
 
-/** dnata logo. `white` reproduces the prototype's `filter:brightness(0) invert(1)` on dark headers. */
-export function Logo({ height = 24, width, white }: { height?: number; width?: number; white?: boolean }) {
-  const paths = white ? LOGO_PATHS.replace(/#80BA51|#0090CB/g, '#FFFFFF') : LOGO_PATHS;
+/**
+ * dnata logo. `white` reproduces the prototype's `filter:brightness(0) invert(1)` on dark headers;
+ * `onDark` keeps the green accent with a white wordmark.
+ */
+export function Logo({ height = 24, width, white, onDark }: { height?: number; width?: number; white?: boolean; onDark?: boolean }) {
+  const paths = white ? LOGO_PATHS.replace(/#80BA51|#0090CB/g, '#FFFFFF') : onDark ? LOGO_PATHS.replace('#0090CB', '#FFFFFF') : LOGO_PATHS;
   const xml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36.353042 10.078157">${paths}</svg>`;
   return <SvgXml xml={xml} width={width ?? height * LOGO_RATIO} height={height} />;
 }
