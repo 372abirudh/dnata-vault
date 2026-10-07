@@ -1,6 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { PanResponder, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Path, Pattern, RadialGradient, Rect, Stop, SvgXml } from 'react-native-svg';
+import { Image, PanResponder, View } from 'react-native';
+import Svg, { Defs, LinearGradient, Path, Pattern, Rect, Stop, SvgXml } from 'react-native-svg';
 import type { SigData } from '../data/types';
 import { useScrollLock } from './overlay';
 
@@ -18,54 +18,39 @@ export function Logo({ height = 24, width, white }: { height?: number; width?: n
   return <SvgXml xml={xml} width={width ?? height * LOGO_RATIO} height={height} />;
 }
 
+const HERO = require('../../assets/hero-bg.jpg');
+const HERO_W = 941, HERO_H = 1672;
+
 /**
- * Hero background. The prototype uses assets/hero-bg.png (deep blue with a light sweep); this is a vector
- * recreation of that artwork plus the prototype's top darkening gradient.
+ * Hero background — the prototype's `--app-hero`: assets/hero-bg.png at `center 30% / cover` over navy,
+ * with a darkening gradient across the top 40%.
  */
 export function HeroBackground() {
   const [size, setSize] = useState({ w: 0, h: 0 });
+  // CSS cover + background-position 30%: scale to fill, then offset by 30% of the overflow.
+  const scale = size.w ? Math.max(size.w / HERO_W, size.h / HERO_H) : 0;
+  const iw = HERO_W * scale, ih = HERO_H * scale;
   return (
-    <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
-      {size.w ? <HeroArt w={size.w} h={size.h} /> : null}
+    <View
+      pointerEvents="none"
+      style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden', backgroundColor: '#0A1B4F' }}
+      onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
+    >
+      {size.w ? (
+        <>
+          <Image source={HERO} style={{ position: 'absolute', width: iw, height: ih, left: (size.w - iw) / 2, top: (size.h - ih) * 0.3 }} />
+          <Svg width={size.w} height={size.h} style={{ position: 'absolute' }}>
+            <Defs>
+              <LinearGradient id="top" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor="#05103C" stopOpacity="0.25" />
+                <Stop offset="0.4" stopColor="#05103C" stopOpacity="0" />
+              </LinearGradient>
+            </Defs>
+            <Rect width="100%" height="100%" fill="url(#top)" />
+          </Svg>
+        </>
+      ) : null}
     </View>
-  );
-}
-
-function HeroArt({ w, h }: { w: number; h: number }) {
-  return (
-    <Svg width={w} height={h} viewBox="0 0 402 380" preserveAspectRatio="xMidYMid slice">
-      <Defs>
-        <LinearGradient id="base" x1="0" y1="0" x2="1" y2="0.35">
-          <Stop offset="0" stopColor="#061C6E" />
-          <Stop offset="0.45" stopColor="#0A3FC4" />
-          <Stop offset="1" stopColor="#0A57F2" />
-        </LinearGradient>
-        <RadialGradient id="glow" cx="0.82" cy="0.05" r="0.75">
-          <Stop offset="0" stopColor="#2E7BFF" stopOpacity="0.85" />
-          <Stop offset="1" stopColor="#2E7BFF" stopOpacity="0" />
-        </RadialGradient>
-        <RadialGradient id="shade" cx="0.05" cy="0.95" r="0.7">
-          <Stop offset="0" stopColor="#04124A" stopOpacity="0.85" />
-          <Stop offset="1" stopColor="#04124A" stopOpacity="0" />
-        </RadialGradient>
-        <LinearGradient id="top" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#05103C" stopOpacity="0.25" />
-          <Stop offset="0.4" stopColor="#05103C" stopOpacity="0" />
-        </LinearGradient>
-        <LinearGradient id="sweep" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#0A2FA8" stopOpacity="0" />
-          <Stop offset="1" stopColor="#1B63FF" stopOpacity="0.35" />
-        </LinearGradient>
-      </Defs>
-      <Rect width="402" height="380" fill="#0A1B4F" />
-      <Rect width="402" height="380" fill="url(#base)" />
-      <Path d="M96 -20 C 120 120, 220 230, 430 290 L 430 -20 Z" fill="url(#sweep)" />
-      <Rect width="402" height="380" fill="url(#glow)" />
-      <Rect width="402" height="380" fill="url(#shade)" />
-      <Path d="M96 -20 C 120 120, 220 230, 430 290" stroke="#5B9BFF" strokeOpacity="0.25" strokeWidth="6" fill="none" />
-      <Path d="M96 -20 C 120 120, 220 230, 430 290" stroke="#7EB0FF" strokeOpacity="0.8" strokeWidth="1.1" fill="none" />
-      <Rect width="402" height="380" fill="url(#top)" />
-    </Svg>
   );
 }
 

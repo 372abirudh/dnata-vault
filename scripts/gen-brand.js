@@ -36,12 +36,19 @@ const background = (size) => `
 const svg = (size, body) => Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${body}</svg>`);
 const png = (size, body, file) => sharp(svg(size, body)).png().toFile(out(file)).then(() => console.log('wrote', file));
 
+// Square crop of the app's hero artwork (assets/hero-bg.jpg), slightly darkened so the wordmark reads well.
+const heroSquare = (size) =>
+  sharp(out('hero-bg.jpg')).resize(size, size, { fit: 'cover', position: 'centre' }).modulate({ brightness: 0.9 }).toBuffer();
+
 (async () => {
   const S = 1024, WHITE = '#FFFFFF', GREEN = '#80BA51';
-  // iOS / store icon: full-bleed background + white wordmark with the green accent.
-  await png(S, background(S) + placed(S, 0.72, GREEN, WHITE), 'icon.png');
+  const hero = await heroSquare(S);
+  // iOS / store icon: hero artwork + white wordmark with the green accent.
+  await sharp(hero).composite([{ input: svg(S, placed(S, 0.72, GREEN, WHITE)) }]).png().toFile(out('icon.png'));
+  console.log('wrote icon.png');
   // Android adaptive icon: the launcher crops to the centre ~66%, so the logo stays inside that.
-  await png(S, background(S), 'android-icon-background.png');
+  await sharp(hero).png().toFile(out('android-icon-background.png'));
+  console.log('wrote android-icon-background.png');
   await png(S, placed(S, 0.5, GREEN, WHITE), 'android-icon-foreground.png');
   await png(S, placed(S, 0.5, WHITE, WHITE), 'android-icon-monochrome.png');
   // Splash: brand-coloured wordmark on a transparent canvas (background colour set in app.json).
