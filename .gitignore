@@ -36,9 +36,8 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# generated native folders
+# generated native folders (android/ is committed; regenerate it with `npx expo prebuild --platform android --clean`)
 /ios
-/android
 
 # design reference pulled from Claude Design (source of truth lives there)
 design/

@@ -43,6 +43,10 @@ The app starts with sample data. Receipts and orders are saved on the phone afte
 
 If the phone can't reach the laptop (for example on office or guest Wi-Fi), use `npx expo start --tunnel` instead.
 
+## Install the app without Expo Go
+
+A ready-made Android APK is in `releases/`. To build a new one, and for fixes to common Windows build and install problems, see [docs/android-build.md](docs/android-build.md).
+
 ## Code map
 
 ```
