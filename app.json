@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "dnata Vault",
+    "slug": "dnata-vault",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F2F3F5",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.dnata.vault"
+    },
+    "android": {
+      "package": "com.dnata.vault",
+      "adaptiveIcon": {
+        "backgroundColor": "#0A1B4F",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker",
+      "expo-sharing",
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "dnata Vault uses the camera to scan seal, bin and bar labels.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "dnata Vault attaches Emirates ID photos to proof of delivery.",
+          "cameraPermission": "dnata Vault photographs the recipient's Emirates ID for proof of delivery."
+        }
+      ]
+    ]
+  }
+}
