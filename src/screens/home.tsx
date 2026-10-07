@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { useStore } from '../store';
 import { C, R, font, tabular } from '../theme/tokens';
 import { Icon } from '../icons/Icon';
@@ -164,13 +164,17 @@ function useNotifs() {
 }
 
 export function ProfileSheet() {
-  const set = useStore((s) => s.set), flash = useStore((s) => s.flash);
+  const set = useStore((s) => s.set), flash = useStore((s) => s.flash), resetData = useStore((s) => s.resetData);
   const notifs = useNotifs();
   const close = () => set({ acct: false });
   const rows: [string, string, string, () => void, boolean][] = [
     ['bell', 'Notifications', notifs.length ? String(notifs.length) : '', () => set({ notif: true, acct: false }), true],
     ['building-2', 'Facility', 'DXB North', () => flash('Facility access is managed by your supervisor.', 'info'), true],
     ['life-buoy', 'Help & support', '', () => flash('Support: vault-ops@dnata.com', 'info'), true],
+    ['rotate-ccw', 'Reset sample data', '', () => Alert.alert('Reset sample data?', 'All receipts and orders on this phone go back to the demo set. Your changes are deleted.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Reset', style: 'destructive', onPress: () => { resetData(); close(); flash('Sample data restored.', 'info'); } },
+    ]), true],
     ['info', 'App version', '2.4.0', () => {}, false],
   ];
   return (

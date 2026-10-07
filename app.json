@@ -41,6 +41,15 @@
           "photosPermission": "dnata Vault attaches Emirates ID photos to proof of delivery.",
           "cameraPermission": "dnata Vault photographs the recipient's Emirates ID for proof of delivery."
         }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#0A1B4F"
+        }
       ]
     ]
   }

@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppState, View } from 'react-native';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
@@ -20,6 +21,8 @@ import { PaFilterSheet, PutawayDetail, PutawayPage, PutawayTaskSheet } from './s
 import { OrderDetail, PodDocSheet } from './src/screens/orders/detail';
 import { AllocSheet, OrderCreateSheet } from './src/screens/orders/create';
 import { TaskSheet } from './src/screens/orders/task';
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const GRN_SHEETS = { create: GrnCreateSheet, assign: AssignSheet, verify: VerifySheet, vhr: VhrSheet, putaway: PutawayTaskSheet, doc: DocSheet };
 
@@ -69,7 +72,12 @@ export default function App() {
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') setStatusBarStyle('light'); });
     return () => sub.remove();
   }, []);
-  if (!loaded) return <View style={{ flex: 1, backgroundColor: C.navy }} />;
+  // Wait for receipts and orders saved on the device before showing the app.
+  const [hydrated, setHydrated] = useState(useStore.persist.hasHydrated());
+  useEffect(() => useStore.persist.onFinishHydration(() => setHydrated(true)), []);
+  const ready = loaded && hydrated;
+  useEffect(() => { if (ready) SplashScreen.hideAsync().catch(() => {}); }, [ready]);
+  if (!ready) return <View style={{ flex: 1, backgroundColor: C.navy }} />;
   return (
     <SafeAreaProvider>
       <Root />

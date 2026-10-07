@@ -22,7 +22,11 @@ The app uses these native features:
 - Document and photo pickers.
 - Printing and PDF sharing for the VHR, package labels and POD.
 
-The data is sample data held in memory. Reloading the app resets it.
+The app starts with sample data. Receipts and orders are saved on the phone after every change, so they survive closing and reopening the app. To restore the demo data, go to **Profile → Reset sample data**.
+
+## Branding
+
+`node scripts/gen-brand.js` generates the app icon, the Android adaptive icon layers, the splash image and the favicon from the dnata logo. Expo Go shows its own loading screen, so the splash screen only appears in an installed build.
 
 ## Run it on your phone
 
@@ -46,7 +50,7 @@ App.tsx                     root: list page, pushed pages, sheets, app-wide over
 src/theme/tokens.ts         colors, radii, shadows, type (SF Pro on iOS, Inter elsewhere), status tones
 src/icons/                  Phosphor icons by design name (paths.ts is generated: node scripts/gen-icons.js)
 src/data/                   types, master data, catalog and stock packages, sample receipts and orders
-src/store/                  zustand store: data, screen state and every workflow action
+src/store/                  zustand store: data (saved to the phone), screen state and every workflow action
 src/logic/                  status flows, prompts, tones; printable document HTML
 src/components/ds.tsx       design-system primitives (Button, TextField, StatusChip, SegmentedControl, …)
 src/components/vault.tsx    shared app components (hero, record card, nav, detail header, timeline, sheet header/footer, …)

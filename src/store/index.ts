@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Bag, DispatchInfo, Grn, GrnLine, HistoryEvent, Order, OrderItem, PickOpt, PodInfo, PutawayRow, SigData } from '../data/types';
 import { ME, BINS, CATALOG, FACILITIES, PACKS, STAFF, STOCK, WT, byCode, facCode, pkgs, seedGrns, seedOrders, staffById } from '../data/seed';
 import { aed, dateLong, hm, MONTHS, nowLong, nowShort, plural } from '../data/format';
@@ -154,6 +156,8 @@ type State = {
 
 type Actions = {
   set: (p: Partial<State>) => void;
+  /** Restores the sample receipts and orders. */
+  resetData: () => void;
   flash: (msg: string, tone?: ToastTone) => void;
   openPicker: <T>(title: string, opts: PickOpt<T>[], cur: T | null | undefined, onPick: (v: T) => void) => void;
   openScan: (title: string, onCode: (code: string) => void, hint?: string) => void;
@@ -192,9 +196,10 @@ const log = (o: { history: HistoryEvent[] }, t: string, d = '', k?: string, long
   o.history = o.history.concat([{ k, t, a: ME, ts: long ? nowLong() : nowShort(), d }]);
 };
 
-export const useStore = create<State & Actions>()((set, get) => ({
+export const useStore = create<State & Actions>()(persist((set, get) => ({
   grns: seedGrns(),
   orders: seedOrders(),
+  resetData: () => set({ grns: seedGrns(), orders: seedOrders(), grnActive: null, orderActive: null, paDetail: null }),
 
   section: 'receipts', page: 'home', q: '', homeSearch: false, createMenu: false, acct: false, notif: false,
   toast: null, picker: null, scan: null, date: null,
@@ -413,6 +418,12 @@ export const useStore = create<State & Actions>()((set, get) => ({
     set({ task: null });
     get().flash(no + ' dispatched.');
   },
+}), {
+  // Receipts and orders are saved on the device after every change; screen state is not.
+  name: 'dnata-vault-data',
+  version: 1,
+  storage: createJSONStorage(() => AsyncStorage),
+  partialize: (s) => ({ grns: s.grns, orders: s.orders }),
 }));
 
 function patchGrn(no: string, fn: (g: Grn) => void) {
