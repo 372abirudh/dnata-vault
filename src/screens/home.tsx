@@ -153,7 +153,13 @@ function useNotifs() {
     const ev: { icon: string; title: string; sub: string; ts: string }[] = [];
     grns.forEach((x) => x.history.forEach((h) => ev.push({ icon: 'package-open', title: `${h.t || 'Update'} · ${x.no}`, sub: h.a || x.customer, ts: h.ts || '' })));
     orders.forEach((o) => o.history.forEach((h) => ev.push({ icon: 'truck', title: `${h.t || 'Update'} · ${o.no}`, sub: h.a || o.customer, ts: h.ts || '' })));
-    return ev.slice(-6).reverse();
+    // Newest first. Timestamps look like "24 Sep · 08:10" (orders) or "21 Sep 2026 · 08:12" (receipts).
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const when = (ts: string) => {
+      const m = /^(\d{1,2}) (\w{3})(?: (\d{4}))? · (\d{2}):(\d{2})/.exec(ts);
+      return m ? new Date(m[3] ? +m[3] : new Date().getFullYear(), MON.indexOf(m[2]), +m[1], +m[4], +m[5]).getTime() : 0;
+    };
+    return ev.map((e, i) => ({ e, t: when(e.ts), i })).sort((a, b) => b.t - a.t || b.i - a.i).slice(0, 6).map((x) => x.e);
   }, [grns, orders]);
 }
 

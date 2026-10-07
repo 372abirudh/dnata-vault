@@ -163,7 +163,7 @@ function BarsPicker({ draft, bp, setBp, onDone }: {
       bodyStyle={{ paddingTop: 4, paddingBottom: 20 }}
       footer={
         <SheetFooter note={`${sel.length} of ${need} bars · ${np} ${np === 1 ? 'package' : 'packages'}`} noteTone={ok ? 'success' : 'warning'}
-          cancelLabel="Reset to default" primaryLabel="Done" primaryIcon="check" blocked={!ok}
+          cancelLabel="Reset" primaryLabel="Done" primaryIcon="check" blocked={!ok}
           onCancel={() => set(() => defaultBars(l.item, need, draft.facility))} onPrimary={() => ok && onDone(sel)} />
       }
     >
