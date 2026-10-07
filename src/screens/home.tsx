@@ -5,7 +5,7 @@ import { C, R, font, tabular } from '../theme/tokens';
 import { Icon } from '../icons/Icon';
 import { Avatar, EmptyState, IconTile, SegmentedControl, StatusChip, Txt } from '../components/ds';
 import { BottomNav, Hero, HeroKpi, NavItem, RecordCard, RecordRow, SheetHeader, StatusTabs } from '../components/vault';
-import { Grabber, Sheet, useFooterPad, useSheetDrag } from '../components/overlay';
+import { Grabber, Sheet, useFooterPad, useNavBottom, useSheetDrag } from '../components/overlay';
 import { IconButton } from '../components/ds';
 import { initials, shortFac, todayLine } from '../data/format';
 import { GRN_TABS, grnLabel, grnNextAct, grnTone, sumExp } from '../logic/grn';
@@ -42,6 +42,7 @@ export function HomeScreen() {
   const scroll = useRef<ScrollView>(null);
   const { kpis, pct } = useHomeKpis();
   const nav = useNav(() => scroll.current?.scrollTo({ y: 0, animated: true }));
+  const navBottom = useNavBottom();
   const receipts = s.section === 'receipts';
   const q = s.q.trim().toLowerCase();
 
@@ -82,7 +83,7 @@ export function HomeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: C.bgApp }}>
-      <ScrollView ref={scroll} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120, gap: 12 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scroll} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: navBottom + 96, gap: 12 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <Hero
           title={receipts ? 'Goods receipt' : 'Orders'} subtitle={todayLine()} overviewTitle="Today’s activity" pct={pct} kpis={kpis}
           showSearch={s.homeSearch} onToggleSearch={() => s.set(s.homeSearch ? { homeSearch: false, q: '' } : { homeSearch: true })}

@@ -5,7 +5,7 @@ import { C, R, font, shadow, tabular } from '../../theme/tokens';
 import { Icon } from '../../icons/Icon';
 import { Button, Grid, SelectField, Txt } from '../../components/ds';
 import { SheetHeader } from '../../components/vault';
-import { Sheet, useFooterPad } from '../../components/overlay';
+import { FooterBar, Sheet } from '../../components/overlay';
 import { HeroBackground, Logo, SignaturePad, SignaturePadHandle } from '../../components/art';
 import { STAFF, byCode, staffById } from '../../data/seed';
 import { sumExp, sumRec } from '../../logic/grn';
@@ -49,7 +49,6 @@ export function VhrSheet() {
   const [confirmed, setConfirmed] = useState(true);
   const [signed, setSigned] = useState(false);
   const pad = useRef<SignaturePadHandle>(null);
-  const pb = useFooterPad(30);
   const close = () => s.set({ grnSheet: null });
   const ho = g.handover, ap = staffById(approver);
   const vhrNo = `VHR-${g.no.slice(4)}`;
@@ -81,17 +80,17 @@ export function VhrSheet() {
       header={<SheetHeader title="Valuable handling receipt" subtitle={`${g.no} · ${g.customer} · ${g.facility}`} icon="clipboard-check" onClose={close} />}
       bodyStyle={{ gap: 14, paddingBottom: 20 }}
       footer={
-        <View style={{ paddingTop: 10, paddingHorizontal: 16, paddingBottom: pb, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: C.hairline, gap: 10 }}>
+        <FooterBar style={{ paddingTop: 10, paddingHorizontal: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: C.hairline, gap: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Icon name={reason ? 'circle-alert' : 'circle-check'} size={14} color={reason ? C.warningIcon : C.successIcon} />
             <Txt style={[font(400, 12, 16), { flex: 1, color: reason ? C.warningText : C.successText }]}>{reason ?? 'Ready to sign and lock this GRN'}</Txt>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Button variant="secondary" size="lg" leadingIcon="printer" onPress={print}>Print</Button>
-            <Button variant="secondary" size="lg" onPress={close}>Cancel</Button>
+            <Button variant="secondary" size="lg" leadingIcon="printer" onPress={print} style={{ paddingHorizontal: 14 }}>Print</Button>
+            <Button variant="secondary" size="lg" onPress={close} style={{ paddingHorizontal: 14 }}>Cancel</Button>
             <View style={{ flex: 1 }}><Button size="lg" fullWidth leadingIcon="lock" disabled={!!reason} onPress={sign}>Sign & lock GRN</Button></View>
           </View>
-        </View>
+        </FooterBar>
       }
     >
       <View style={[{ backgroundColor: '#fff', borderRadius: R.card, overflow: 'hidden' }, shadow.card2]}>

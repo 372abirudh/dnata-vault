@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import {
-  Animated, BackHandler, Easing, KeyboardAvoidingView, PanResponder, Platform, Pressable, ScrollView, StyleProp, StyleSheet, useWindowDimensions, View, ViewStyle,
+  Animated, BackHandler, Easing, Keyboard, PanResponder, Platform, Pressable, ScrollView, StyleProp, StyleSheet, useWindowDimensions, View, ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { C, SHEET_EASE, shadow } from '../theme/tokens';
@@ -26,6 +26,19 @@ export const useScrollLock = () => useContext(ScrollLockContext);
 /** Drag-down-to-dismiss handle, attached to sheet headers (the prototype closes on a >56px drag). */
 const DragContext = createContext<{ panHandlers?: object }>({});
 export const useSheetDrag = () => useContext(DragContext);
+
+/** Height of the on-screen keyboard (0 when hidden). */
+export function useKeyboardHeight() {
+  const [h, setH] = useState(0);
+  useEffect(() => {
+    const show = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', (e) => setH(e.endCoordinates.height));
+    const hide = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setH(0));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+  return h;
+}
+/** True while a sheet is lifted above the keyboard — footers then drop their home-indicator padding. */
+const KeyboardOpenContext = createContext(false);
 
 /**
  * Bottom sheet over a scrim — the prototype's `position:absolute;inset:0` overlay with the `vsheet`/`vfade` animations.
@@ -66,13 +79,17 @@ export function Sheet({
     }),
   ).current;
 
-  const mh = maxHeight ?? height - insets.top - 6;
+  // Lift the sheet above the keyboard and shrink it so the header stays on screen.
+  const kbRaw = useKeyboardHeight();
+  // Edge-to-edge Android reports the keyboard without the navigation bar below it.
+  const kb = kbRaw > 0 && Platform.OS === 'android' ? kbRaw + insets.bottom : kbRaw;
+  const mh = Math.min(maxHeight ?? height, height - insets.top - 6) - kb;
   return (
     <View style={[StyleSheet.absoluteFill, { zIndex: z, elevation: z }]}>
       <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: C.scrim, opacity: fade }]}>
         <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="Close" />
       </Animated.View>
-      <KeyboardAvoidingView behavior="padding" style={{ flex: 1, justifyContent: 'flex-end' }} pointerEvents="box-none">
+      <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: kb }} pointerEvents="box-none">
         <Animated.View
           style={[
             { maxHeight: mh, height: fill ? mh : undefined, backgroundColor: bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: 'hidden' },
@@ -81,6 +98,7 @@ export function Sheet({
           ]}
         >
           <DragContext.Provider value={{ panHandlers: pan.panHandlers }}>
+            <KeyboardOpenContext.Provider value={kb > 0}>
             <FormContext.Provider value={form}>
               <ScrollLockContext.Provider value={setLocked}>
                 {header}
@@ -100,9 +118,10 @@ export function Sheet({
                 {footer}
               </ScrollLockContext.Provider>
             </FormContext.Provider>
+            </KeyboardOpenContext.Provider>
           </DragContext.Provider>
         </Animated.View>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 }
@@ -129,8 +148,28 @@ export function PushScreen({ onBack, children, z = 25 }: { onBack: () => void; c
   );
 }
 
-/** Bottom padding for sheet footers: clears the home indicator / gesture bar. */
+/**
+ * Bottom padding for sheet footers. The prototype's 30–34px sits over the iPhone home indicator;
+ * Android's button / gesture bar is opaque, so footers clear it plus a small gap.
+ */
 export const useFooterPad = (base = 30) => {
   const insets = useSafeAreaInsets();
-  return Math.max(base - 34 + insets.bottom, 16);
+  const kbOpen = useContext(KeyboardOpenContext);
+  if (kbOpen) return 12;
+  return Platform.OS === 'ios' ? Math.max(base - 34 + insets.bottom, 16) : insets.bottom + 12;
+};
+
+/** Bottom padding for detail-page scroll content (clears the home indicator / nav bar). */
+export const useDetailPad = () => 40 + useSafeAreaInsets().bottom;
+
+/** Sheet footer container with the right bottom padding (keyboard- and nav-bar-aware). */
+export function FooterBar({ base = 30, style, children }: { base?: number; style?: StyleProp<ViewStyle>; children: React.ReactNode }) {
+  const pb = useFooterPad(base);
+  return <View style={[style, { paddingBottom: pb }]}>{children}</View>;
+}
+
+/** Distance from the screen bottom to the floating nav bar (26px above the home indicator in the prototype). */
+export const useNavBottom = () => {
+  const insets = useSafeAreaInsets();
+  return Platform.OS === 'ios' ? Math.max(insets.bottom - 8, 16) : insets.bottom + 12;
 };

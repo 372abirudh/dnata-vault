@@ -23,8 +23,17 @@ export function Logo({ height = 24, width, white }: { height?: number; width?: n
  * recreation of that artwork plus the prototype's top darkening gradient.
  */
 export function HeroBackground() {
+  const [size, setSize] = useState({ w: 0, h: 0 });
   return (
-    <Svg width="100%" height="100%" viewBox="0 0 402 380" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+    <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+      {size.w ? <HeroArt w={size.w} h={size.h} /> : null}
+    </View>
+  );
+}
+
+function HeroArt({ w, h }: { w: number; h: number }) {
+  return (
+    <Svg width={w} height={h} viewBox="0 0 402 380" preserveAspectRatio="xMidYMid slice">
       <Defs>
         <LinearGradient id="base" x1="0" y1="0" x2="1" y2="0.35">
           <Stop offset="0" stopColor="#061C6E" />

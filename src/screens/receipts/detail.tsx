@@ -5,7 +5,7 @@ import type { Grn } from '../../data/types';
 import { C, font, mono, shadow, tabular } from '../../theme/tokens';
 import { Button, Card, Chip, EmptyState, IconTile, InfoGrid, ListGroup, ListRow, StatusChip, Txt } from '../../components/ds';
 import { DetailHeader, DetailTabs, InfoSection, Metric, NextStep, SectionLabel, SheetHeader, Timeline } from '../../components/vault';
-import { PushScreen, Sheet, useFooterPad } from '../../components/overlay';
+import { PushScreen, Sheet, useDetailPad, useFooterPad } from '../../components/overlay';
 import { Barcode, SigView } from '../../components/art';
 import { plural, shortFac } from '../../data/format';
 import { grnActIcon, grnEventIcon, grnLabel, grnNextAct, grnPrompt, sealedCount, sumExp, sumRec, variance, varianceTone } from '../../logic/grn';
@@ -17,6 +17,7 @@ export function GrnDetail({ no }: { no: string }) {
   const g = useStore((s) => s.grns.find((x) => x.no === no));
   const tab = useStore((s) => s.recTab);
   const set = useStore((s) => s.set), runGrn = useStore((s) => s.runGrn);
+  const pad = useDetailPad();
   if (!g) return null;
   const a = grnNextAct(g.status);
   const back = () => set({ grnActive: null });
@@ -31,7 +32,7 @@ export function GrnDetail({ no }: { no: string }) {
         items={[{ key: 'overview', label: 'Overview' }, { key: 'goods', label: 'Goods' }, { key: 'handover', label: 'Handover' }, { key: 'activity', label: 'Activity' }, { key: 'docs', label: 'Docs' }]}
         active={tab} onChange={(k) => set({ recTab: k })}
       />
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 16, paddingBottom: 40, gap: 12 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 16, paddingBottom: pad, gap: 12 }} showsVerticalScrollIndicator={false}>
         {tab === 'overview' ? <Overview g={g} /> : null}
         {tab === 'goods' ? <Goods g={g} /> : null}
         {tab === 'handover' ? <HandoverTab g={g} /> : null}

@@ -1,6 +1,6 @@
-import React from 'react';
-import { View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { AppState, View } from 'react-native';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
@@ -64,6 +64,11 @@ function Root() {
 
 export default function App() {
   const [loaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
+  // System screens (print, camera, pickers) can reset the status bar; restore light icons on return.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => { if (st === 'active') setStatusBarStyle('light'); });
+    return () => sub.remove();
+  }, []);
   if (!loaded) return <View style={{ flex: 1, backgroundColor: C.navy }} />;
   return (
     <SafeAreaProvider>

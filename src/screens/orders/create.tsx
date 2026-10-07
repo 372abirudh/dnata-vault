@@ -6,7 +6,7 @@ import { C, R, font, tabular } from '../../theme/tokens';
 import { Icon } from '../../icons/Icon';
 import { Box, Button, Checkbox, Grid, IconButton, SelectField, TextField, Txt } from '../../components/ds';
 import { CardHeader, LockedField, SheetFooter, SheetHeader } from '../../components/vault';
-import { Sheet, useFooterPad } from '../../components/overlay';
+import { FooterBar, Sheet } from '../../components/overlay';
 import { CATALOG, ORDER_FACILITIES, PICKERS, SHORT, availAt, byCode, defaultBars, facCode, pkgsAt } from '../../data/seed';
 import { aed } from '../../data/format';
 
@@ -210,17 +210,16 @@ export function AllocSheet({ no }: { no: string }) {
   const o = s.orders.find((x) => x.no === no)!;
   const [picker, setPicker] = useState('Omar Farooq');
   const [note, setNote] = useState('Release window 10:00–12:00');
-  const pb = useFooterPad(34);
   const close = () => s.set({ allocNo: null });
   return (
     <Sheet
       onClose={close} z={45} bodyStyle={{ padding: 16, gap: 16 }}
       header={<SheetHeader title="Allocate to picker" subtitle={`${o.no} · ${o.customer}`} icon="user-check" onClose={close} />}
       footer={
-        <View style={{ flexDirection: 'row', gap: 10, paddingTop: 12, paddingHorizontal: 16, paddingBottom: pb }}>
+        <FooterBar base={34} style={{ flexDirection: 'row', gap: 10, paddingTop: 12, paddingHorizontal: 16 }}>
           <View style={{ flex: 1 }}><Button variant="secondary" size="lg" fullWidth onPress={close}>Cancel</Button></View>
           <View style={{ flex: 2 }}><Button size="lg" fullWidth leadingIcon="user-check" disabled={!picker} onPress={() => s.allocate(no, picker, note)}>Allocate</Button></View>
-        </View>
+        </FooterBar>
       }
     >
       <Txt style={[font(400, 12, 17), { color: C.text2 }]}>A pick task is raised for the picker. They select the actual bars from the vault for each line, then mark the order picked.</Txt>

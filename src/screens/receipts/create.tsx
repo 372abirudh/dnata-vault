@@ -6,14 +6,13 @@ import { C, R, font } from '../../theme/tokens';
 import { Icon } from '../../icons/Icon';
 import { Box, Button, IconButton, Radio, SelectField, TextField, Txt } from '../../components/ds';
 import { SectionLabel, SheetFooter, SheetHeader } from '../../components/vault';
-import { Sheet, useFooterPad } from '../../components/overlay';
+import { FooterBar, Sheet } from '../../components/overlay';
 import { CATALOG, FACILITIES, PACK_TYPES, STAFF, byCode, staffById } from '../../data/seed';
 import { dateLong } from '../../data/format';
 
 export function GrnCreateSheet() {
   const s = useStore();
   const [c, setC] = useState<GrnDraft>(newGrnDraft);
-  const pb = useFooterPad(30);
   const up = (p: Partial<GrnDraft>) => setC((x) => ({ ...x, ...p }));
   const upLine = (i: number, p: Partial<GrnDraft['lines'][number]>) => setC((x) => ({ ...x, lines: x.lines.map((l, j) => (j === i ? { ...l, ...p } : l)) }));
   const close = () => s.set({ grnSheet: null });
@@ -33,12 +32,12 @@ export function GrnCreateSheet() {
       header={<SheetHeader title="Goods Receipt Note" onClose={close} />}
       bodyStyle={{ paddingTop: 4, paddingBottom: 20 }}
       footer={
-        <View style={{ flexDirection: 'row', gap: 10, paddingTop: 12, paddingHorizontal: 16, paddingBottom: pb, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: C.hairline }}>
+        <FooterBar style={{ flexDirection: 'row', gap: 10, paddingTop: 12, paddingHorizontal: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: C.hairline }}>
           <View style={{ flex: 1 }}><Button variant="secondary" size="lg" fullWidth onPress={close}>Cancel</Button></View>
           <View style={{ flex: 1.6 }}>
             <Button size="lg" fullWidth disabled={!!gate} onPress={() => { const no = s.createGrn(c); close(); s.flash(`${no} created as draft.`); }}>Create request</Button>
           </View>
-        </View>
+        </FooterBar>
       }
     >
       <SelectField label="Customer name" required placeholder="Select customer" value={customers.find((x) => x.id === c.customer)?.name ?? ''}

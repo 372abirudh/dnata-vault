@@ -8,7 +8,7 @@ import { Badge, Box, Button, Grid, IconTile, ListRow, SelectField, StatusChip, T
 import {
   BarTableHead, BinRow, BottomNav, CardHeader, DetailHeader, DetailTabs, DoneFooter, Hero, InfoSection, SelectRow, SheetFooter, SheetHeader, Timeline,
 } from '../../components/vault';
-import { PushScreen, Sheet } from '../../components/overlay';
+import { PushScreen, Sheet, useDetailPad, useNavBottom } from '../../components/overlay';
 import { ACCOUNTS, BINS, FACILITIES } from '../../data/seed';
 import { plural, shortFac, todayLine } from '../../data/format';
 import { sumExp, sumRec } from '../../logic/grn';
@@ -143,6 +143,7 @@ export function PutawayPage() {
   const scroll = useRef<ScrollView>(null);
   const nav = useNav(() => scroll.current?.scrollTo({ y: 0, animated: true }));
   const recs = usePaRecords();
+  const navBottom = useNavBottom();
   const q = s.q.trim().toLowerCase();
   const all = recs.slice().reverse();
   const list = all.filter((r) => (s.paStatus === 'All' || r.status === s.paStatus) && (s.paFac === 'All' || r.grn.facility === s.paFac)
@@ -156,7 +157,7 @@ export function PutawayPage() {
   ];
   return (
     <View style={{ flex: 1, backgroundColor: C.bgApp }}>
-      <ScrollView ref={scroll} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120, gap: 12 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scroll} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: navBottom + 96, gap: 12 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <Hero
           title="Put away" subtitle={todayLine()} overviewTitle="Put away summary" pct={(recs.length ? Math.round((assigned / recs.length) * 100) : 0) + '%'} kpis={kpis}
           showSearch={s.homeSearch} onToggleSearch={() => s.set(s.homeSearch ? { homeSearch: false, q: '' } : { homeSearch: true })} q={s.q} onSearch={(v) => s.set({ q: v })}
@@ -242,6 +243,7 @@ export function PaFilterSheet() {
 export function PutawayDetail({ no }: { no: string }) {
   const s = useStore();
   const x = s.grns.find((g) => g.no === no);
+  const pad = useDetailPad();
   if (!x || !x.putaway) return null;
   const pa = x.putaway, rs = pa.rows, tab = s.paTab;
   const back = () => s.set({ paDetail: null });
@@ -270,7 +272,7 @@ export function PutawayDetail({ no }: { no: string }) {
         items={[{ key: 'storage', label: 'Storage' }, { key: 'packages', label: 'Packages' }, { key: 'source', label: 'Source receipt' }, { key: 'activity', label: 'Activity' }]}
         active={tab} onChange={(k) => s.set({ paTab: k })}
       />
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 16, paddingBottom: 40, gap: 12 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 16, paddingBottom: pad, gap: 12 }}>
         {tab === 'storage' ? (
           <>
             <Box>

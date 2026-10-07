@@ -8,7 +8,7 @@ import { useStore } from '../store';
 import { C, R, font } from '../theme/tokens';
 import { Icon } from '../icons/Icon';
 import { Button, IconButton, TextField, Toast, Txt } from './ds';
-import { Grabber, Sheet, useFooterPad, useSheetDrag } from './overlay';
+import { FooterBar, Grabber, Sheet, useFooterPad, useNavBottom, useSheetDrag } from './overlay';
 import { SheetHeader } from './vault';
 
 // ─── Option picker (the prototype's z-70 picker sheet) ──
@@ -31,7 +31,7 @@ export function PickerHost() {
   const picker = useStore((s) => s.picker);
   const set = useStore((s) => s.set);
   const [q, setQ] = useState('');
-  const insets = useSafeAreaInsets();
+  const pb = useFooterPad(34);
   const { height } = useWindowDimensions();
   useEffect(() => setQ(''), [picker]);
   if (!picker) return null;
@@ -39,7 +39,7 @@ export function PickerHost() {
   const qq = q.trim().toLowerCase();
   const opts = picker.opts.filter((x) => !qq || `${x.label} ${x.sub ?? ''}`.toLowerCase().includes(qq));
   return (
-    <Sheet onClose={close} z={70} form={false} header={<PickerHead title={picker.title} onClose={close} />} bodyStyle={{ paddingTop: 0, paddingBottom: 34 + insets.bottom / 2, gap: 0 }} maxHeight={height * 0.82}>
+    <Sheet onClose={close} z={70} form={false} header={<PickerHead title={picker.title} onClose={close} />} bodyStyle={{ paddingTop: 0, paddingBottom: pb, gap: 0 }} maxHeight={height * 0.82}>
       {picker.opts.length > 5 ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, height: 48, paddingLeft: 20, paddingRight: 16, borderRadius: 999, backgroundColor: '#F2F4F7', marginBottom: 12 }}>
           <TextInput value={q} onChangeText={setQ} placeholder="Search" placeholderTextColor={C.n500} autoCorrect={false} style={[font(400, 14, 20), { flex: 1, color: C.text, padding: 0 }]} />
@@ -78,7 +78,6 @@ export function ScanHost() {
   const [manual, setManual] = useState('');
   const [torch, setTorch] = useState(false);
   const done = useRef(false);
-  const pb = useFooterPad(34);
   useEffect(() => { done.current = false; setManual(''); setTorch(false); }, [scan]);
   if (!scan) return null;
   const close = () => set({ scan: null });
@@ -95,12 +94,12 @@ export function ScanHost() {
       header={<SheetHeader title={scan.title} subtitle={scan.hint ?? 'Point the camera at the barcode or QR label'} icon="scan-barcode" onClose={close} />}
       bodyBg={C.bgApp}
       footer={
-        <View style={{ paddingTop: 12, paddingHorizontal: 16, paddingBottom: pb, borderTopWidth: 1, borderTopColor: C.hairline, backgroundColor: '#fff', gap: 10 }}>
+        <FooterBar base={34} style={{ paddingTop: 12, paddingHorizontal: 16, borderTopWidth: 1, borderTopColor: C.hairline, backgroundColor: '#fff', gap: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
             <TextField label="Or type the code" placeholder="E.g. A-01-04" value={manual} onChangeText={setManual} autoCapitalize="characters" style={{ flex: 1 }} />
             <Button size="lg" disabled={!manual.trim()} onPress={() => finish(manual)}>Use</Button>
           </View>
-        </View>
+        </FooterBar>
       }
     >
       <View style={{ height: 300, borderRadius: R.card, overflow: 'hidden', backgroundColor: '#0C0E12', alignItems: 'center', justifyContent: 'center' }}>
@@ -181,10 +180,10 @@ export function DateHost() {
 
 export function ToastHost() {
   const toast = useStore((s) => s.toast);
-  const insets = useSafeAreaInsets();
+  const navBottom = useNavBottom();
   if (!toast) return null;
   return (
-    <View pointerEvents="none" style={{ position: 'absolute', left: 16, right: 16, bottom: 104 + Math.max(insets.bottom - 8, 16) - 18, zIndex: 80, elevation: 80 }}>
+    <View pointerEvents="none" style={{ position: 'absolute', left: 16, right: 16, bottom: navBottom + 86, zIndex: 80, elevation: 80 }}>
       <Toast key={toast.id} message={toast.msg} tone={toast.tone} />
     </View>
   );

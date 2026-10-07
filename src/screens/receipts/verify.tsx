@@ -4,7 +4,7 @@ import { useStore, newVerifyDraft, lineReceived, VerifyDraft, VerifyLine } from 
 import { C, font, mono, tabular } from '../../theme/tokens';
 import { Icon } from '../../icons/Icon';
 import { Button, Card, Checkbox, Chip, IconButton, InfoGrid, MetricCard, SegmentedControl, StatusChip, TextField, Txt } from '../../components/ds';
-import { Grabber, Sheet, useFooterPad, useSheetDrag } from '../../components/overlay';
+import { FooterBar, Grabber, Sheet, useSheetDrag } from '../../components/overlay';
 import { Barcode } from '../../components/art';
 import { ORIGINS, PACKS, SUPPLIERS } from '../../data/seed';
 import { dateLong, hm } from '../../data/format';
@@ -73,7 +73,6 @@ export function VerifySheet() {
   const g = s.grns.find((x) => x.no === s.sheetNo)!;
   const [vf, setVf] = useState<VerifyDraft>(() => newVerifyDraft(g));
   const [step, setStep] = useState(1);
-  const pb = useFooterPad(34);
   const close = () => s.set({ grnSheet: null });
   const up = (p: Partial<VerifyDraft>) => setVf((x) => ({ ...x, ...p }));
   const upLine = (i: number, p: Partial<VerifyLine>) => setVf((x) => ({ ...x, lines: x.lines.map((l, j) => (j === i ? { ...l, ...p } : l)) }));
@@ -110,7 +109,7 @@ export function VerifySheet() {
       header={<VerifyHead title={TITLES[step - 1]} caption={`${g.no} · Step ${step} of 4`} sub={SUBS[step - 1]} step={step} onClose={close} />}
       bodyStyle={{ paddingTop: 16 }}
       footer={
-        <View style={{ paddingTop: 12, paddingHorizontal: 16, paddingBottom: pb, backgroundColor: C.bgApp, gap: 12 }}>
+        <FooterBar base={34} style={{ paddingTop: 12, paddingHorizontal: 16, backgroundColor: C.bgApp, gap: 12 }}>
           {gate ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4 }}>
               <Icon name="circle-alert" size={16} color={C.warningIcon} />
@@ -125,7 +124,7 @@ export function VerifySheet() {
               </Button>
             </View>
           </View>
-        </View>
+        </FooterBar>
       }
     >
       {step === 1 ? (
@@ -201,7 +200,7 @@ export function VerifySheet() {
                   </View>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     <View style={{ flex: 1 }}><TextField leadingIcon="tag" label="Lot number" required placeholder="LOT-0000" value={l.lot} onChangeText={(x) => upLine(i, { lot: x.toUpperCase() })} autoCapitalize="characters" /></View>
-                    <View style={{ width: 120 }}><TextField leadingIcon="weight" label="Weight" required suffix="kg" placeholder="0.000" keyboardType="decimal-pad" value={l.weight} onChangeText={(x) => upLine(i, { weight: x.replace(/[^0-9.]/g, '') })} /></View>
+                    <View style={{ width: 144 }}><TextField leadingIcon="weight" label="Weight" required suffix="kg" placeholder="0.000" keyboardType="decimal-pad" value={l.weight} onChangeText={(x) => upLine(i, { weight: x.replace(/[^0-9.]/g, '') })} /></View>
                   </View>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     {(['l', 'w', 'h'] as const).map((k) => (

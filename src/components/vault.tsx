@@ -9,7 +9,7 @@ import { Icon } from '../icons/Icon';
 import { C, R, font, shadow, tabular } from '../theme/tokens';
 import { Button, Grid, IconButton, IconTile, Kv, Press, StatusChip, TextField, Txt } from './ds';
 import { HeroBackground, Logo } from './art';
-import { Grabber, useFooterPad, useSheetDrag } from './overlay';
+import { Grabber, useFooterPad, useNavBottom, useSheetDrag } from './overlay';
 
 const tile = (size = 40, radius = 12) => ({ width: size, height: size, borderRadius: radius, backgroundColor: C.tileBg, alignItems: 'center' as const, justifyContent: 'center' as const });
 
@@ -140,9 +140,9 @@ const CardLink = ({ text, onPress }: { text: string; onPress: () => void }) => (
 
 export type NavItem = { label: string; icon: string; on: boolean; onPress: () => void };
 export function BottomNav({ items, onCreate }: { items: NavItem[]; onCreate: () => void }) {
-  const insets = useSafeAreaInsets();
+  const bottom = useNavBottom();
   return (
-    <View style={{ position: 'absolute', left: 16, right: 16, bottom: Math.max(insets.bottom - 8, 16), zIndex: 6, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+    <View style={{ position: 'absolute', left: 16, right: 16, bottom, zIndex: 6, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
       <View style={[{ flex: 1, height: 64, borderRadius: 32, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center' }, shadow.bar]}>
         {items.map((n) => {
           const fg = n.on ? C.primary600 : C.navInk;

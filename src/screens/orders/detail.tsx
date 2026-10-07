@@ -7,7 +7,7 @@ import { C, font, tabular } from '../../theme/tokens';
 import { Icon } from '../../icons/Icon';
 import { Badge, Box, Button, Grid, IconTile, ListRow, StatusChip, Txt } from '../../components/ds';
 import { CardHeader, DetailHeader, DetailTabs, InfoSection, NextStep, ProgressStep, ProgressSteps, SheetHeader, Timeline } from '../../components/vault';
-import { PushScreen, Sheet } from '../../components/overlay';
+import { PushScreen, Sheet, useDetailPad } from '../../components/overlay';
 import { Logo, SigView } from '../../components/art';
 import { ME, WT, byCode } from '../../data/seed';
 import { aed, nowShort, plural } from '../../data/format';
@@ -27,6 +27,7 @@ const bagsOf = (o: Order) =>
 export function OrderDetail({ no }: { no: string }) {
   const s = useStore();
   const o = s.orders.find((x) => x.no === no);
+  const pad = useDetailPad();
   if (!o) return null;
   const a = orderNextAct(o.status);
   const back = () => s.set({ orderActive: null });
@@ -41,7 +42,7 @@ export function OrderDetail({ no }: { no: string }) {
         items={[{ key: 'overview', label: 'Overview' }, { key: 'items', label: 'Lines & bags' }, { key: 'docs', label: 'Documents' }, { key: 'activity', label: 'Activity' }]}
         active={s.oTab} onChange={(k) => s.set({ oTab: k })}
       />
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 16, paddingBottom: 40, gap: 12 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 16, paddingBottom: pad, gap: 12 }} showsVerticalScrollIndicator={false}>
         {s.oTab === 'overview' ? <Overview o={o} /> : null}
         {s.oTab === 'items' ? <Lines o={o} /> : null}
         {s.oTab === 'docs' ? <Docs o={o} /> : null}
