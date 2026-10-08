@@ -9,7 +9,7 @@ import { Grabber, Sheet, useFooterPad, useNavBottom, useSheetDrag } from '../com
 import { IconButton } from '../components/ds';
 import { initials, shortFac, todayLine } from '../data/format';
 import { GRN_TABS, grnLabel, grnNextAct, grnTone, sumExp } from '../logic/grn';
-import { ORDER_TABS, ORDER_TAB_ICON, createdOf, deliveryOf, orderActText, orderNextAct, orderTone, recipientOf } from '../logic/orders';
+import { ORDER_TABS, ORDER_TAB_ICON, createdOf, deliveryOf, orderActText, orderNextAct, orderTone, recipientOf, valueOf } from '../logic/orders';
 
 /** Today's activity KPIs across receipts and orders. */
 export function useHomeKpis() {
@@ -73,7 +73,7 @@ export function HomeScreen() {
           const w = String(e?.a ?? '').split(' · ')[0];
           return {
             customer: o.customer, no: o.no, tone: orderTone(o.status), status: o.status,
-            grid: [{ label: 'Recipient', value: recipientOf(o) }, { label: 'Delivery', value: deliveryOf(o) }, { label: 'Value', value: o.value }],
+            grid: [{ label: 'Recipient', value: recipientOf(o) }, { label: 'Delivery', value: deliveryOf(o) }, { label: 'Value', value: valueOf(o) }],
             who: w || '—', whatLine: e?.t ?? '', when: e?.ts ?? '', dateLabel: 'Created', dateValue: createdOf(o),
             actText: a ? orderActText(a, o.status) : o.status === 'Delivered' ? 'POD document' : 'View order',
             onAct: a ? () => s.runOrder(o.no) : o.status === 'Delivered' ? () => s.set({ podDoc: o.no }) : () => s.openOrder(o.no),

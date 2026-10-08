@@ -1,5 +1,7 @@
 import type { Order, OrderStatus } from '../data/types';
 import type { Tone } from '../theme/tokens';
+import { byCode } from '../data/seed';
+import { aedShort } from '../data/format';
 
 export const ORDER_FLOW: OrderStatus[] = ['Pending', 'Allocated', 'Picked', 'Ready for dispatch', 'Dispatched', 'Delivered'];
 export const ORDER_TABS = ['All', 'Pending', 'Allocated', 'Picked', 'Ready for dispatch', 'Dispatched', 'Delivered', 'Cancelled'] as const;
@@ -30,3 +32,9 @@ export const orderPrompt = (s: OrderStatus) =>
 export const recipientOf = (o: Order) => o.extra?.recipient || '—';
 export const deliveryOf = (o: Order) => { const m = o.extra?.method; return m === 'Armoured vehicle' || !m ? 'VIT armored' : m; };
 export const createdOf = (o: Order) => o.history[0]?.ts ?? o.release;
+/** Declared value: the sum of the line values, so it always matches the items. Falls back to the stored figure for items without a catalogue price. */
+export const valueOf = (o: Order) => {
+  let t = 0;
+  for (const it of o.items) { const c = byCode(it.code); if (!c) return o.value; t += c.price * it.qty; }
+  return aedShort(t);
+};

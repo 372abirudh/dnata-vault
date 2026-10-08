@@ -18,5 +18,7 @@ export const todayLine = () => { const d = new Date(); return `Today is ${DAYS[d
 export const plural = (n: number, one: string, many?: string) => `${n} ${n === 1 ? one : many ?? one + 's'}`;
 export const initials = (name: string) => name.split(' ').filter(Boolean).map((x) => x[0]).slice(0, 2).join('').toUpperCase() || '—';
 export const aed = (n: number) => 'AED ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/** "AED 3.6M" / "AED 980K" — order values on cards and documents. */
+export const aedShort = (n: number) => (n >= 1e6 ? 'AED ' + (n / 1e6).toFixed(1) + 'M' : 'AED ' + Math.round(n / 1000) + 'K');
 /** Strips " Logistics Vault" / " Vault" etc. — "DXB Vault North" → "DXB North". */
 export const shortFac = (f: string) => String(f || '').replace(' Logistics Vault', '').replace(' Vault', '').replace(' Logistics', '');

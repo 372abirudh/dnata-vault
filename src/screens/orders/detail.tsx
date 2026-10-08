@@ -11,7 +11,7 @@ import { PushScreen, Sheet, useDetailPad } from '../../components/overlay';
 import { Logo, SigView } from '../../components/art';
 import { ME, WT, byCode } from '../../data/seed';
 import { aed, nowShort, plural } from '../../data/format';
-import { ORDER_FLOW, createdOf, deliveryOf, orderActIcon, orderActText, orderNextAct, orderPrompt } from '../../logic/orders';
+import { ORDER_FLOW, createdOf, deliveryOf, valueOf, orderActIcon, orderActText, orderNextAct, orderPrompt } from '../../logic/orders';
 import { podHtml, printHtml } from '../../logic/docs';
 
 const eventIcon = (t: string) =>
@@ -35,7 +35,7 @@ export function OrderDetail({ no }: { no: string }) {
     <PushScreen onBack={back} z={30}>
       <DetailHeader
         backLabel="Orders" onBack={back} icon="truck" title={o.no} subtitle={`${o.customer} · ${o.type}`} status={o.status}
-        facts={[{ label: 'Release', value: o.release }, { label: 'Destination', value: o.dest.split(' · ')[0] }, { label: 'Value', value: o.value }]}
+        facts={[{ label: 'Release', value: o.release }, { label: 'Destination', value: o.dest.split(' · ')[0] }, { label: 'Value', value: valueOf(o) }]}
         actText={a ? orderActText(a, o.status) : null} actIcon={a ? orderActIcon(a) : undefined} onAction={() => s.runOrder(o.no)}
       />
       <DetailTabs
@@ -261,7 +261,7 @@ export function PodDocSheet({ no }: { no: string }) {
   const close = () => s.set({ podDoc: null });
   const p = d.pod, dsp = d.dispatch ?? {}, x = d.extra ?? {};
   const f: [string, string][] = [['Order', d.no], ['Customer', d.customer], ['Recipient', p?.recipient || dsp.recipient || x.recipient || '—'], ['Delivery', deliveryOf(d)],
-    ['Created', createdOf(d)], ['Value', d.value], ['AWB', x.awb || dsp.cNum || '—'], ['Handover', dsp.hTo || dsp.carrier || '—']];
+    ['Created', createdOf(d)], ['Value', valueOf(d)], ['AWB', x.awb || dsp.cNum || '—'], ['Handover', dsp.hTo || dsp.carrier || '—']];
   const items = d.items.map((it) => { const c = byCode(it.code); return { name: it.name.split(' · ')[0], qty: String(it.qty), wt: `${Math.round((WT[it.code] || 0) * it.qty * 1000) / 1000} kg`, val: c ? aed(c.price * it.qty) : '—' }; });
   const h = d.history.slice().reverse().find((h2) => /deliver/i.test(h2.t));
   const at = p?.at || h?.ts || '';
@@ -314,7 +314,7 @@ export function PodDocSheet({ no }: { no: string }) {
           ))}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 12, borderTopWidth: 1, borderTopColor: C.hairline, backgroundColor: '#F4F8FF' }}>
             <Txt style={[font(600, 12, 16), { flex: 1, color: '#1A4CB8' }]}>Declared value</Txt>
-            <Txt style={[font(700, 14, 20), tabular, { color: '#1A4CB8' }]}>{d.value}</Txt>
+            <Txt style={[font(700, 14, 20), tabular, { color: '#1A4CB8' }]}>{valueOf(d)}</Txt>
           </View>
         </View>
         <View style={{ padding: 16, flexDirection: 'row', gap: 10 }}>

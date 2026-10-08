@@ -96,7 +96,7 @@ export function ScanHost() {
       footer={
         <FooterBar base={34} style={{ paddingTop: 12, paddingHorizontal: 16, borderTopWidth: 1, borderTopColor: C.hairline, backgroundColor: '#fff', gap: 10 }}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
-            <TextField label="Or type the code" placeholder="E.g. A-01-04" value={manual} onChangeText={setManual} autoCapitalize="characters" style={{ flex: 1 }} />
+            <TextField label="Or type the code" placeholder={scan.example ? `E.g. ${scan.example}` : 'Type the code'} value={manual} onChangeText={setManual} autoCapitalize="characters" style={{ flex: 1 }} />
             <Button size="lg" disabled={!manual.trim()} onPress={() => finish(manual)}>Use</Button>
           </View>
         </FooterBar>

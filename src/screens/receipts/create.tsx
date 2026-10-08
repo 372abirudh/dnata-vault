@@ -129,7 +129,7 @@ export function AssignSheet() {
   return (
     <Sheet
       onClose={close} z={50} bodyBg={C.bgApp}
-      header={<SheetHeader title="Assign staff" subtitle="Ownership moves to the assignee on confirm" icon="user-check" onClose={close} />}
+      header={<SheetHeader title="Assign staff" subtitle="The assignee takes ownership" icon="user-check" onClose={close} />}
       footer={
         <SheetFooter
           note={st ? 'Assignee is notified and becomes owner' : 'Select a staff member to continue'} noteTone={st ? 'success' : 'warning'}

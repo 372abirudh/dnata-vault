@@ -105,7 +105,7 @@ export function VerifySheet() {
 
   return (
     <Sheet
-      onClose={close} z={40} bg={C.bgApp} form={false}
+      onClose={close} z={40} bg={C.bgApp} form={false} page={step}
       header={<VerifyHead title={TITLES[step - 1]} caption={`${g.no} · Step ${step} of 4`} sub={SUBS[step - 1]} step={step} onClose={close} />}
       bodyStyle={{ paddingTop: 16 }}
       footer={
@@ -214,7 +214,7 @@ export function VerifySheet() {
                   <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-end' }}>
                     <View style={{ flex: 1 }}><TextField leadingIcon="lock" label="Seal ID" required placeholder="Scan or type seal" value={l.seal} onChangeText={(x) => upLine(i, { seal: x.toUpperCase() })} success={!!l.seal} autoCapitalize="characters" /></View>
                     <Button variant="secondary" size="lg" leadingIcon="scan-barcode" style={{ width: 104 }}
-                      onPress={() => s.openScan('Scan seal', (code) => { upLine(i, { seal: code }); s.flash('Seal scanned.'); }, src.pkgId)}>Scan</Button>
+                      onPress={() => s.openScan('Scan seal', (code) => { upLine(i, { seal: code }); s.flash('Seal scanned.'); }, src.pkgId, 'SL-771600')}>Scan</Button>
                   </View>
                   <View style={{ paddingTop: 14, borderTopWidth: 1, borderTopColor: C.borderSubtle, gap: 10 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -231,7 +231,7 @@ export function VerifySheet() {
                       <Button variant="secondary" size="md" leadingIcon="barcode"
                         onPress={() => s.openScan('Scan bar number', (code) => setVf((x) => ({
                           ...x, lines: x.lines.map((ln, j) => (j === i && !ln.bars.includes(code) ? { ...ln, bars: [...ln.bars, code] } : ln)),
-                        })))}>Scan</Button>
+                        })), undefined, 'CH-1001')}>Scan</Button>
                     </View>
                     {l.bars.length ? (
                       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>

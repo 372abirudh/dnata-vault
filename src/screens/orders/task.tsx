@@ -19,8 +19,11 @@ const T = {
   pick: ['Pick bars', 'Packages are pre-filled from facility and vault stock, oldest first (FIFO). Change the date to pick from a different package.', 'Confirm pick', 'scan-barcode'],
   pack: ['Pack bars', 'Select an item, set how many bags it goes into, then split its quantity and seal each bag.', 'Mark packed', 'package'],
   pod: ['Proof of delivery', 'Verify the recipient against their Emirates ID and capture their signature.', 'Confirm delivery', 'shield-check'],
-  dispatch: ['Dispatch order', 'Record recipient, delivery, handover and courier details, then sign to release custody.', 'Update', 'truck'],
+  dispatch: ['Dispatch order', 'Record recipient, delivery, handover and courier details, then sign to release custody.', 'Dispatch', 'truck'],
 } as const;
+
+/** The +971 fields show the country code as a prefix, so keep only the local part. */
+const local = (p: string) => p.replace(/^\+971\s*/, '');
 
 const initPod = (o: Order): PodInfo => {
   const x = o.extra ?? {}, d = o.dispatch ?? {};
@@ -31,9 +34,9 @@ const initDispatch = (o: Order): DispatchInfo => {
   const rd = fromIsoRelease(o.release);
   return {
     recipient: x.recipient && x.recipient !== o.customer ? x.recipient : 'Khalid Al Nuaimi', rPhone: '50 618 2290', rEid: x.eid || '784-1985-3348120-7', method: 'VIT',
-    staff: o.picker || 'Omar Farooq', exp: iso(rd ?? new Date()), disp: iso(new Date()), pod: '', payment: x.payment || 'Account', dPhone: x.contact || '+971 4 218 6600',
-    file: '', address: o.dest, hVehicle: 'DXB 44821', hTo: 'Transguard Cash', hTruck: 'TRK-2208', hPhone: '+971 52 330 1188', cNum: 'AWB 176-44829310',
-    cCo: "Brink's Global Services", cEid: '784-1990-6612044-1', driver: 'Ali Rahmani', drPhone: '+971 56 771 2245', comments: 'Handled under dual custody',
+    staff: o.picker || 'Omar Farooq', exp: iso(rd ?? new Date()), disp: iso(new Date()), pod: '', payment: x.payment || 'Account', dPhone: local(x.contact || '4 218 6600'),
+    file: '', address: o.dest, hVehicle: 'DXB 44821', hTo: 'Transguard Cash', hTruck: 'TRK-2208', hPhone: '52 330 1188', cNum: 'AWB 176-44829310',
+    cCo: "Brink's Global Services", cEid: '784-1990-6612044-1', driver: 'Ali Rahmani', drPhone: '56 771 2245', comments: 'Handled under dual custody',
     signedBy: o.picker || 'Omar Farooq', sig: false,
   };
 };
@@ -321,9 +324,10 @@ function Pod({ pod, setPod, pad }: { pod: PodInfo; setPod: React.Dispatch<React.
     const perm = camera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return flash(camera ? 'Camera access is required to photograph the Emirates ID.' : 'Photo library access is required.', 'warning');
     const r = camera ? await ImagePicker.launchCameraAsync({ quality: 0.6 }) : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.6 });
-    if (!r.canceled) setPod((p) => ({ ...p, photo: r.assets[0].fileName || `EID-photo-${Date.now() % 100000}.jpg` }));
+    // Camera shots come back with a random UUID file name, so label them by capture time instead.
+    if (!r.canceled) setPod((p) => ({ ...p, photo: (!camera && r.assets[0].fileName) || `Emirates ID photo · ${hm(new Date())}` }));
   };
-  const choose = () => Alert.alert('Emirates ID photo', undefined, [{ text: 'Take photo', onPress: () => take(true) }, { text: 'Choose from library', onPress: () => take(false) }, { text: 'Cancel', style: 'cancel' }]);
+  const choose = () => Alert.alert('Emirates ID photo', 'Photograph the recipient\'s Emirates ID, or choose an existing photo.', [{ text: 'Take photo', onPress: () => take(true) }, { text: 'Choose from library', onPress: () => take(false) }, { text: 'Cancel', style: 'cancel' }]);
   return (
     <View style={{ backgroundColor: '#fff', borderWidth: 1, borderColor: C.borderSubtle, borderRadius: 16, paddingVertical: 16, paddingHorizontal: 14, gap: 14 }}>
       <TextField leadingIcon="user" label="Recipient name (from order)" required value={pod.recipient} disabled />

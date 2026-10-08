@@ -1,5 +1,5 @@
 import type { Grn, GrnLine, HistoryEvent, Order, OrderItem, PutawayRow, StockPackage } from './types';
-import { MONTHS } from './format';
+import { dateLong } from './format';
 
 export const ME = 'Omar Farooq · Vault Officer';
 
@@ -75,7 +75,7 @@ export function pkgs(code: string): StockPackage[] {
       const bars: string[] = [];
       for (let b = 0; b < inPack; b++) bars.push(pre + '-' + bar++);
       out.push({
-        date: String(d.getDate()).padStart(2, '0') + '-' + MONTHS[d.getMonth()] + '-' + d.getFullYear(), ts: d.getTime(),
+        date: dateLong(d), ts: d.getTime(),
         id: '49689940000' + String(88001 + seed * 3 + k).padStart(7, '0'), fac, vault, inPack, bars,
       });
       k++;

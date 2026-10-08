@@ -4,7 +4,7 @@ import type { Grn, Order, SigData } from '../data/types';
 import { byCode, WT } from '../data/seed';
 import { aed } from '../data/format';
 import { sumExp, sumRec } from './grn';
-import { deliveryOf, createdOf } from './orders';
+import { deliveryOf, createdOf, valueOf } from './orders';
 
 const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 const sigSvg = (s?: SigData) =>
@@ -38,11 +38,11 @@ export function grnDocHtml(g: Grn, kind: 'vhr' | 'labels') {
 export function podHtml(d: Order) {
   const p = d.pod, dsp = d.dispatch ?? {}, x = d.extra ?? {};
   const f: [string, string][] = [['Order', d.no], ['Customer', d.customer], ['Recipient', p?.recipient || dsp.recipient || x.recipient || '—'], ['Delivery', deliveryOf(d)],
-    ['Created', createdOf(d)], ['Value', d.value], ['AWB', x.awb || dsp.cNum || '—'], ['Handover', dsp.hTo || dsp.carrier || '—']];
+    ['Created', createdOf(d)], ['Value', valueOf(d)], ['AWB', x.awb || dsp.cNum || '—'], ['Handover', dsp.hTo || dsp.carrier || '—']];
   const items = d.items.map((it) => { const c = byCode(it.code); return `<tr><td>${esc(it.name.split(' · ')[0])}</td><td>${it.qty}</td><td>${Math.round((WT[it.code] || 0) * it.qty * 1000) / 1000} kg</td><td>${c ? aed(c.price * it.qty) : '—'}</td></tr>`; }).join('');
   return page(`POD ${d.no}`, `<div class="brand"><div><div class="logo">dnata</div><div class="muted">dnata valuable cargo · Vault operations</div></div><div style="text-align:right"><b>${esc(d.status)}</b><div class="muted">${esc(p?.at ?? '')}</div></div></div>
     <h1>Proof of delivery</h1><table class="kv">${f.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
-    <h1 style="font-size:14px">Items delivered</h1><table><tr><th>Item</th><th>Qty</th><th>Weight</th><th>Value</th></tr>${items}<tr><td colspan="3"><b>Declared value</b></td><td><b>${esc(d.value)}</b></td></tr></table>
+    <h1 style="font-size:14px">Items delivered</h1><table><tr><th>Item</th><th>Qty</th><th>Weight</th><th>Value</th></tr>${items}<tr><td colspan="3"><b>Declared value</b></td><td><b>${esc(valueOf(d))}</b></td></tr></table>
     <div class="sig"><div>${sigSvg(dsp.sigImg)}Released by (dnata)<div class="muted">${esc(dsp.signedBy || dsp.staff || '')}</div></div><div>${sigSvg(p?.sigImg)}Received by (recipient)<div class="muted">${esc(p?.recipient || dsp.recipient || '')}</div></div></div>`);
 }
 

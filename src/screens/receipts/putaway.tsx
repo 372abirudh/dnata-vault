@@ -84,7 +84,7 @@ export function PutawayTaskSheet() {
             <BinRow
               key={p.no} n={String(j + 1)} code={p.no} bin={p.bin} barsLabel={`View bars (${p.bars.length})`} divider={j > 0}
               onPickBin={() => s.openPicker('Bin', BINS.map((b) => ({ v: b, label: b, sub: 'Available' })), p.bin, (v) => upPkg(j, v))}
-              onScan={() => s.openScan('Scan bin', (code) => { upPkg(j, code); s.flash(BINS.includes(code) ? `Bin ${code} scanned.` : `Bin ${code} scanned — not in the bin master, check the label.`); }, 'Point the camera at the bin label')}
+              onScan={() => s.openScan('Scan bin', (code) => { upPkg(j, code); s.flash(BINS.includes(code) ? `Bin ${code} scanned.` : `Bin ${code} scanned — not in the bin master, check the label.`); }, 'Point the camera at the bin label', 'A-01-04')}
               onViewBars={() => setView(j)}
             />
           ))}

@@ -42,14 +42,16 @@ const KeyboardOpenContext = createContext(false);
 
 /**
  * Bottom sheet over a scrim — the prototype's `position:absolute;inset:0` overlay with the `vsheet`/`vfade` animations.
- * header and footer stay fixed; children scroll.
+ * header and footer stay fixed; children scroll. Changing `page` (e.g. a wizard step) scrolls the body back to the top.
  */
 export function Sheet({
-  onClose, header, footer, children, bg = '#fff', bodyBg, form = true, z = 40, maxHeight, bodyStyle, scroll = true, fill,
+  onClose, header, footer, children, bg = '#fff', bodyBg, form = true, z = 40, maxHeight, bodyStyle, scroll = true, fill, page,
 }: {
   onClose: () => void; header?: React.ReactNode; footer?: React.ReactNode; children?: React.ReactNode; bg?: string; bodyBg?: string; form?: boolean;
-  z?: number; maxHeight?: number; bodyStyle?: StyleProp<ViewStyle>; scroll?: boolean; fill?: boolean;
+  z?: number; maxHeight?: number; bodyStyle?: StyleProp<ViewStyle>; scroll?: boolean; fill?: boolean; page?: string | number;
 }) {
+  const body = useRef<ScrollView>(null);
+  useEffect(() => { body.current?.scrollTo({ y: 0, animated: false }); }, [page]);
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const y = useRef(new Animated.Value(height)).current;
@@ -104,6 +106,7 @@ export function Sheet({
                 {header}
                 {scroll ? (
                   <ScrollView
+                    ref={body}
                     style={{ flexGrow: fill ? 1 : 0, flexShrink: 1, backgroundColor: bodyBg }}
                     contentContainerStyle={[{ padding: 16, paddingTop: 12, gap: 12 }, bodyStyle]}
                     keyboardShouldPersistTaps="handled"

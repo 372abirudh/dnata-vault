@@ -3,14 +3,14 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Bag, DispatchInfo, Grn, GrnLine, HistoryEvent, Order, OrderItem, PickOpt, PodInfo, PutawayRow, SigData } from '../data/types';
 import { ME, BINS, CATALOG, FACILITIES, PACKS, STAFF, STOCK, WT, byCode, facCode, pkgs, seedGrns, seedOrders, staffById } from '../data/seed';
-import { aed, dateLong, hm, MONTHS, nowLong, nowShort, plural } from '../data/format';
+import { aed, aedShort, dateLong, hm, iso, MONTHS, nowLong, nowShort, plural } from '../data/format';
 import { sumExp } from '../logic/grn';
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 
 export type ToastTone = 'success' | 'warning' | 'error' | 'info';
 export type Picker = { title: string; opts: PickOpt<any>[]; cur: any; onPick: (v: any) => void } | null;
-export type ScanReq = { title: string; hint?: string; onCode: (code: string) => void } | null;
+export type ScanReq = { title: string; hint?: string; example?: string; onCode: (code: string) => void } | null;
 export type DateReq = { title: string; mode: 'date' | 'datetime'; value: Date; onPick: (d: Date) => void } | null;
 
 export type GrnSheet = 'create' | 'verify' | 'vhr' | 'putaway' | 'doc' | 'assign';
@@ -41,7 +41,7 @@ export type GrnDraft = {
 };
 export const newGrnDraft = (): GrnDraft => ({
   customer: 'CT-0101', txType: 'Contractual', facility: 'DXB Vault North', inbound: 'Local', mode: 'Counter', vaultType: 'Actual Vault',
-  po: 'PO-88452', date: new Date(2026, 9, 7), files: [], desc: "1kg 999.9 bars from Brink's Global Services",
+  po: 'PO-88452', date: new Date(), files: [], desc: "1kg 999.9 bars from Brink's Global Services",
   lines: [{ item: 'BUL-9999-1KG', pack: 'Bar', qty: '10' }],
 });
 export const grnDraftGate = (c: GrnDraft) => {
@@ -65,7 +65,7 @@ export type OrderDraft = {
 export const newOrderDraft = (): OrderDraft => ({
   orderType: 'Local', customer: 'CT-0101', facility: 'DWC Logistics Vault', account: 'Emirates NBD Treasury', source: 'Dnata system', file: '',
   method: 'Auto by value', request: 'Release', recipient: 'Khalid Al Nuaimi', eid: '784-1985-3348120-7', awb: '176-44829310', payment: 'Account',
-  date: '2026-10-08', addr1: 'Emirates NBD HQ, Baniyas Road', addr2: 'Deira · Floor 12', emirate: 'Dubai', contact: '+971 50 618 2290',
+  date: iso(new Date(Date.now() + 864e5)), addr1: 'Emirates NBD HQ, Baniyas Road', addr2: 'Deira · Floor 12', emirate: 'Dubai', contact: '+971 50 618 2290',
   lines: [{ item: 'BUL-9999-1KG', qty: 2, alloc: 'FIFO', bars: [] }],
 });
 export const crTotal = (c: OrderDraft) => c.lines.reduce((s, l) => s + (byCode(l.item)?.price ?? 0) * l.qty, 0);
@@ -160,7 +160,8 @@ type Actions = {
   resetData: () => void;
   flash: (msg: string, tone?: ToastTone) => void;
   openPicker: <T>(title: string, opts: PickOpt<T>[], cur: T | null | undefined, onPick: (v: T) => void) => void;
-  openScan: (title: string, onCode: (code: string) => void, hint?: string) => void;
+  /** `example` is the sample code shown in the manual-entry field. */
+  openScan: (title: string, onCode: (code: string) => void, hint?: string, example?: string) => void;
   openDate: (title: string, mode: 'date' | 'datetime', value: Date, onPick: (d: Date) => void) => void;
   setSection: (k: 'receipts' | 'orders') => void;
 
@@ -217,7 +218,7 @@ export const useStore = create<State & Actions>()(persist((set, get) => ({
     toastTimer = setTimeout(() => set({ toast: null }), 2200);
   },
   openPicker: (title, opts, cur, onPick) => set({ picker: { title, opts, cur, onPick } }),
-  openScan: (title, onCode, hint) => set({ scan: { title, onCode, hint } }),
+  openScan: (title, onCode, hint, example) => set({ scan: { title, onCode, hint, example } }),
   openDate: (title, mode, value, onPick) => set({ date: { title, mode, value, onPick } }),
   setSection: (k) => set({ section: k }),
 
@@ -359,7 +360,7 @@ export const useStore = create<State & Actions>()(persist((set, get) => ({
       return { name: it.name, code: it.code, qty: l.qty, unit: it.unit, bin: it.bin, picked: false, src, alloc: l.alloc, preBars: l.alloc === 'Manual' ? [...l.bars] : null };
     });
     const total = crTotal(c);
-    const value = total >= 1e6 ? 'AED ' + (total / 1e6).toFixed(1) + 'M' : 'AED ' + Math.round(total / 1000) + 'K';
+    const value = aedShort(total);
     const ord: Order = {
       no, customer: cust.name, custId: cust.id, status: 'Pending', value, pack: null, dispatch: null,
       dest: [c.addr1, c.addr2, c.emirate].filter(Boolean).join(', ') || c.emirate,

@@ -86,7 +86,7 @@ export function RecordCard({ row, icon, showMeta = true }: { row: RecordRow; ico
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
           <View style={tile()}><Icon name={icon} size={20} color={C.tileFg} /></View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Txt style={font(600, 15, 20)} lines={1}>{row.customer}</Txt>
+            <Txt style={font(600, 15, 20)} lines={2}>{row.customer}</Txt>
             <View style={{ flexDirection: 'row', marginTop: 4 }}>
               <View style={{ paddingVertical: 3, paddingHorizontal: 8, borderWidth: 1, borderColor: C.pillBorder, borderRadius: 999 }}>
                 <Txt style={font(500, 11, 14)}>{row.no}</Txt>
