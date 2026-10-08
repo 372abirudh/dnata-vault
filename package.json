@@ -25,6 +25,8 @@
   "devDependencies": {
     "@phosphor-icons/core": "^2.1.1",
     "@types/react": "~19.2.2",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~57.0.2",
     "sharp": "^0.35.5",
     "typescript": "~6.0.3"
   },
@@ -32,7 +34,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "lint": "expo lint"
   },
   "private": true
 }
